@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to NeoChat AI | Next-Gen AI Assistant</title>
+    <meta name="description"
+        content="Experience the future of AI with NeoChat - Deep Research, Vision Analysis, and Multi-Modal Intelligence">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Three.js for 3D effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neo-purple': '#a855f7',
+                        'neo-blue': '#3b82f6',
+                        'neo-cyan': '#06b6d4',
+                        'neo-pink': '#ec4899',
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'display': ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* 3D Canvas Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #a855f7, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Animated Border */
+        .animated-border {
+            position: relative;
+            background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+                linear-gradient(135deg, #a855f7, #3b82f6, #06b6d4) border-box;
+            border: 2px solid transparent;
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Glow Effect */
+        .glow {
+            box-shadow: 0 0 60px rgba(168, 85, 247, 0.3),
+                0 0 120px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Feature Card Hover */
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.2);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            backdrop-filter: blur(10px);
+        }
+
+        /* Input Focus */
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.5);
+        }
+
+        /* Button Gradient */
+        .btn-gradient {
+            background: linear-gradient(135deg, #a855f7, #3b82f6);
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+        }
+
+        /* Particle Effect */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(168, 85, 247, 0.5);
+            animation: particle-float 10s infinite;
+        }
+
+        @keyframes particle-float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: translateY(-100px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 3D Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-neo-purple to-neo-blue flex items-center justify-center glow">
+                    <span class="text-white font-bold text-lg">N</span>
+                </div>
+                <span class="font-display font-bold text-xl">NeoChat<span class="text-neo-purple">AI</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#features" class="text-gray-400 hover:text-white transition-colors">Features</a>
+                <a href="#about" class="text-gray-400 hover:text-white transition-colors">About</a>
+                <a href="#benefits" class="text-gray-400 hover:text-white transition-colors">Benefits</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="login-btn"
+                    class="px-5 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                    Login
+                </button>
+                <button id="signup-btn" class="btn-gradient px-5 py-2 rounded-full text-sm font-medium text-white">
+                    Get Started
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center px-6 pt-20">
+        <div class="absolute inset-0 overflow-hidden">
+            <!-- Floating Particles -->
+            <div class="particle w-4 h-4 top-1/4 left-1/4" style="animation-delay: 0s;"></div>
+            <div class="particle w-2 h-2 top-1/3 right-1/4" style="animation-delay: 2s;"></div>
+            <div class="particle w-3 h-3 bottom-1/4 left-1/3" style="animation-delay: 4s;"></div>
+            <div class="particle w-2 h-2 top-1/2 right-1/3" style="animation-delay: 6s;"></div>
+        </div>
+
+        <div class="relative z-10 text-center max-w-4xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-8">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                <span class="text-sm text-gray-400">Powered by Advanced AI Models</span>
+            </div>
+
+            <h1 class="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                The Future of
+                <span class="gradient-text block">AI Conversation</span>
+            </h1>
+
+            <p class="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Experience next-generation AI with Deep Research, Vision Analysis, and Multi-Modal Intelligence.
+                Your personal AI assistant that understands context, images, and complex queries.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button onclick="showSignupModal()"
+                    class="btn-gradient px-8 py-4 rounded-full text-lg font-semibold flex items-center gap-3">
+                    <span>Start Free</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                </button>
+                <a href="#about"
+                    class="px-8 py-4 rounded-full border border-white/20 hover:bg-white/5 transition-colors text-lg font-medium flex items-center gap-3">
+                    <span>Learn More</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-8 mt-16 pt-8 border-t border-white/10">
+                <div>
+                    <div class="text-3xl font-bold gradient-text">5+</div>
+                    <div class="text-sm text-gray-500">AI Models</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold gradient-text">100%</div>
+                    <div class="text-sm text-gray-500">Accuracy</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold gradient-text">∞</div>
+                    <div class="text-sm text-gray-500">Possibilities</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What is NeoChat Section -->
+    <section id="about" class="relative py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="reveal text-center mb-16">
+                <span class="text-neo-purple text-sm font-medium uppercase tracking-wider">About NeoChat</span>
+                <h2 class="font-display text-4xl md:text-5xl font-bold mt-4 mb-6">
+                    What is <span class="gradient-text">NeoChat AI</span>?
+                </h2>
+                <p class="text-gray-400 text-lg max-w-3xl mx-auto">
+                    NeoChat AI is a revolutionary AI assistant that combines the power of multiple large language models
+                    with deep research capabilities, image understanding, and real-time web search.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <div class="glass-card rounded-3xl p-8 glow float-animation">
+                        <div
+                            class="aspect-video rounded-2xl bg-gradient-to-br from-neo-purple/20 to-neo-blue/20 flex items-center justify-center">
+                            <div
+                                class="w-24 h-24 rounded-full bg-gradient-to-br from-neo-purple to-neo-blue animate-pulse">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal space-y-6">
+                    <div class="flex gap-4">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-neo-purple/20 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-neo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Deep Research Mode</h3>
+                            <p class="text-gray-400">Searches the web in real-time and provides cited, accurate answers
+                                from multiple sources.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-neo-blue/20 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-neo-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Vision Analysis</h3>
+                            <p class="text-gray-400">Upload images and get detailed analysis, descriptions, and answers
+                                about visual content.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-neo-cyan/20 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-neo-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Multiple AI Personas</h3>
+                            <p class="text-gray-400">Switch between Coder, Creative Writer, Health Advisor, and more
+                                specialized modes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features"
+        class="relative py-32 px-6 bg-gradient-to-b from-transparent via-neo-purple/5 to-transparent">
+        <div class="max-w-7xl mx-auto">
+            <div class="reveal text-center mb-16">
+                <span class="text-neo-cyan text-sm font-medium uppercase tracking-wider">Features</span>
+                <h2 class="font-display text-4xl md:text-5xl font-bold mt-4 mb-6">
+                    Powerful <span class="gradient-text">Capabilities</span>
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="reveal feature-card glass-card rounded-2xl p-8 transition-all duration-300">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-neo-purple to-neo-pink flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-3">Deep Research</h3>
+                    <p class="text-gray-400">Real-time web search with Tavily API providing cited sources and
+                        comprehensive answers.</p>
+                </div>
+
+                <div class="reveal feature-card glass-card rounded-2xl p-8 transition-all duration-300"
+                    style="animation-delay: 0.1s;">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-neo-blue to-neo-cyan flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-3">Image Analysis</h3>
+                    <p class="text-gray-400">Upload any image and get detailed descriptions, OCR, and intelligent
+                        analysis.</p>
+                </div>
+
+                <div class="reveal feature-card glass-card rounded-2xl p-8 transition-all duration-300"
+                    style="animation-delay: 0.2s;">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-neo-cyan to-green-400 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-3">Code Generation</h3>
+                    <p class="text-gray-400">Write, debug, and explain code in any programming language with syntax
+                        highlighting.</p>
+                </div>
+
+                <div class="reveal feature-card glass-card rounded-2xl p-8 transition-all duration-300"
+                    style="animation-delay: 0.3s;">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-3">Math Rendering</h3>
+                    <p class="text-gray-400">Beautiful LaTeX equations rendered with KaTeX for scientific and
+                        mathematical content.</p>
+                </div>
+
+                <div class="reveal feature-card glass-card rounded-2xl p-8 transition-all duration-300"
+                    style="animation-delay: 0.4s;">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-red-500 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-3">Voice Input</h3>
+                    <p class="text-gray-400">Speak your questions naturally with built-in speech recognition support.
+                    </p>
+                </div>
+
+                <div class="reveal feature-card glass-card rounded-2xl p-8 transition-all duration-300"
+                    style="animation-delay: 0.5s;">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-xl mb-3">Export Options</h3>
+                    <p class="text-gray-400">Export your conversations as PDF, Markdown, or copy to clipboard instantly.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="relative py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="reveal text-center mb-16">
+                <span class="text-neo-pink text-sm font-medium uppercase tracking-wider">Why Choose Us</span>
+                <h2 class="font-display text-4xl md:text-5xl font-bold mt-4 mb-6">
+                    Benefits of <span class="gradient-text">NeoChat AI</span>
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="reveal glass-card rounded-2xl p-8 flex gap-6 items-start">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-neo-cyan flex items-center justify-center flex-shrink-0">
+                        <span class="text-2xl">🚀</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-xl mb-2">Lightning Fast</h3>
+                        <p class="text-gray-400">Get instant responses powered by optimized AI models and efficient
+                            streaming.</p>
+                    </div>
+                </div>
+
+                <div class="reveal glass-card rounded-2xl p-8 flex gap-6 items-start">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-neo-purple to-neo-pink flex items-center justify-center flex-shrink-0">
+                        <span class="text-2xl">🔒</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-xl mb-2">Privacy First</h3>
+                        <p class="text-gray-400">Your conversations are secure with strict usage policies and data
+                            protection.</p>
+                    </div>
+                </div>
+
+                <div class="reveal glass-card rounded-2xl p-8 flex gap-6 items-start">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-neo-blue to-indigo-600 flex items-center justify-center flex-shrink-0">
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-xl mb-2">Accurate Results</h3>
+                        <p class="text-gray-400">Deep research mode ensures factual, cited answers from reliable
+                            sources.</p>
+                    </div>
+                </div>
+
+                <div class="reveal glass-card rounded-2xl p-8 flex gap-6 items-start">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-2xl">💡</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-xl mb-2">Always Learning</h3>
+                        <p class="text-gray-400">Continuously updated with the latest AI models and capabilities.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative py-32 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="reveal animated-border rounded-3xl p-12 text-center glow">
+                <h2 class="font-display text-4xl md:text-5xl font-bold mb-6">
+                    Ready to Experience the Future?
+                </h2>
+                <p class="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">
+                    Join thousands of users who are already transforming how they interact with AI.
+                </p>
+                <button onclick="showSignupModal()" class="btn-gradient px-10 py-5 rounded-full text-xl font-semibold">
+                    Get Started Free
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-white/10">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-neo-purple to-neo-blue flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">N</span>
+                </div>
+                <span class="font-display font-bold">NeoChat<span class="text-neo-purple">AI</span></span>
+            </div>
+            <p class="text-gray-500 text-sm">© 2025 NeoChat AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="login-modal"
+        class="fixed inset-0 z-[100] hidden modal-overlay bg-black/80 flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full rounded-3xl p-8 border border-white/10">
+            <div class="text-center mb-8">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-gradient-to-br from-neo-purple to-neo-blue flex items-center justify-center mx-auto mb-4 glow">
+                    <span class="text-white font-bold text-2xl">N</span>
+                </div>
+                <h2 class="font-display text-2xl font-bold">Welcome Back</h2>
+                <p class="text-gray-400 mt-2">Sign in to continue to NeoChat AI</p>
+            </div>
+
+            <button onclick="signInWithGoogle()"
+                class="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-white text-black font-semibold hover:bg-gray-100 transition-colors mb-6">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6"
+                    alt="Google">
+                Continue with Google
+            </button>
+
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-px bg-white/10 flex-1"></div>
+                <span class="text-gray-500 text-sm">OR</span>
+                <div class="h-px bg-white/10 flex-1"></div>
+            </div>
+
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="login-email" required
+                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500"
+                        placeholder="your@email.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" id="login-password" required
+                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500"
+                        placeholder="••••••••">
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="showResetPasswordModal()"
+                        class="text-xs text-gray-400 hover:text-white transition-colors">
+                        Forgot Password?
+                    </button>
+                </div>
+                <div id="login-error" class="hidden text-red-400 text-sm"></div>
+                <button type="submit" class="w-full btn-gradient py-4 rounded-xl font-semibold text-white">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <span class="text-gray-400">Don't have an account?</span>
+                <button onclick="switchToSignup()" class="text-neo-purple hover:underline ml-1">Sign up</button>
+            </div>
+
+            <button onclick="hideLoginModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal"
+        class="fixed inset-0 z-[100] hidden modal-overlay bg-black/80 flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full rounded-3xl p-8 border border-white/10">
+            <div class="text-center mb-8">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-gradient-to-br from-neo-cyan to-neo-blue flex items-center justify-center mx-auto mb-4 glow">
+                    <span class="text-white font-bold text-2xl">✨</span>
+                </div>
+                <h2 class="font-display text-2xl font-bold">Create Account</h2>
+                <p class="text-gray-400 mt-2">Join NeoChat AI today</p>
+            </div>
+
+            <button onclick="signInWithGoogle()"
+                class="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-white text-black font-semibold hover:bg-gray-100 transition-colors mb-6">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6"
+                    alt="Google">
+                Continue with Google
+            </button>
+
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-px bg-white/10 flex-1"></div>
+                <span class="text-gray-500 text-sm">OR</span>
+                <div class="h-px bg-white/10 flex-1"></div>
+            </div>
+
+            <form id="signup-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                    <input type="text" id="signup-name" required
+                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500"
+                        placeholder="Your Name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="signup-email" required
+                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500"
+                        placeholder="your@email.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" id="signup-password" required minlength="6"
+                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500"
+                        placeholder="••••••••">
+                </div>
+                <div id="signup-error" class="hidden text-red-400 text-sm"></div>
+                <button type="submit" class="w-full btn-gradient py-4 rounded-xl font-semibold text-white">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <span class="text-gray-400">Already have an account?</span>
+                <button onclick="switchToLogin()" class="text-neo-cyan hover:underline ml-1">Sign in</button>
+            </div>
+
+            <button onclick="hideSignupModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="reset-modal"
+        class="fixed inset-0 z-[100] hidden modal-overlay bg-black/80 flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-8 rounded-3xl relative border border-white/10 shadow-2xl">
+            <div class="text-center mb-8">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mx-auto mb-4 glow">
+                    <span class="text-white font-bold text-2xl">🔑</span>
+                </div>
+                <h2 class="font-display text-2xl font-bold">Reset Password</h2>
+                <p class="text-gray-400 mt-2">Enter your email to receive recovery instructions</p>
+            </div>
+
+            <form id="reset-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="reset-email" required
+                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500"
+                        placeholder="your@email.com">
+                </div>
+                <div id="reset-message" class="hidden text-sm p-3 rounded-lg"></div>
+                <button type="submit" class="w-full btn-gradient py-4 rounded-xl font-semibold text-white">
+                    Send Reset Link
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <button onclick="hideResetPasswordModal()" class="text-gray-400 hover:text-white text-sm">Back to
+                    Login</button>
+            </div>
+
+            <button onclick="hideResetPasswordModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDKzS_3WKzcTx3HMhLkLfP3yRChEPqsqlU",
+            authDomain: "web-ai-2df7d.firebaseapp.com",
+            databaseURL: "https://web-ai-2df7d-default-rtdb.firebaseio.com",
+            projectId: "web-ai-2df7d",
+            storageBucket: "web-ai-2df7d.firebasestorage.app",
+            messagingSenderId: "368450883479",
+            appId: "1:368450883479:web:7fae043c16aa0f97313ed2",
+            measurementId: "G-CQK98SNDLR"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in, redirect to chat
+                window.location.href = 'index.html';
+            }
+        });
+
+        // 3D Background Scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Create animated sphere
+        const geometry = new THREE.IcosahedronGeometry(1.5, 4);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xa855f7,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3
+        });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+
+        // Add particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const count = 1000;
+        const positions = new Float32Array(count * 3);
+        for (let i = 0; i < count * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 20;
+        }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            color: 0x3b82f6,
+            size: 0.02,
+            transparent: true,
+            opacity: 0.6
+        });
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
+
+        camera.position.z = 5;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            sphere.rotation.x += 0.002;
+            sphere.rotation.y += 0.003;
+            particles.rotation.y += 0.0005;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Scroll Reveal
+        function reveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                const elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    el.classList.add('active');
+                }
+            });
+        }
+        window.addEventListener('scroll', reveal);
+        reveal();
+
+        // Modal Functions
+        function showLoginModal() {
+            document.getElementById('signup-modal').classList.add('hidden');
+            document.getElementById('reset-modal').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function hideLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function showSignupModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('signup-modal').classList.remove('hidden');
+        }
+
+        function hideSignupModal() {
+            document.getElementById('signup-modal').classList.add('hidden');
+        }
+
+        function switchToSignup() {
+            hideLoginModal();
+            showSignupModal();
+        }
+
+        function switchToLogin() {
+            hideSignupModal();
+            showLoginModal();
+        }
+
+        function showResetPasswordModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('reset-modal').classList.remove('hidden');
+        }
+
+        function hideResetPasswordModal() {
+            document.getElementById('reset-modal').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        // Event Listeners for nav buttons
+        document.getElementById('login-btn').addEventListener('click', showLoginModal);
+        document.getElementById('signup-btn').addEventListener('click', showSignupModal);
+
+        // Login Form Handler
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+
+            try {
+                errorEl.classList.add('hidden');
+                await auth.signInWithEmailAndPassword(email, password);
+                // Redirect happens automatically via onAuthStateChanged
+            } catch (error) {
+                errorEl.textContent = error.message;
+                errorEl.classList.remove('hidden');
+            }
+        });
+
+        // Signup Form Handler
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorEl = document.getElementById('signup-error');
+
+            try {
+                errorEl.classList.add('hidden');
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await userCredential.user.updateProfile({ displayName: name });
+
+                // Send verification email
+                await userCredential.user.sendEmailVerification();
+                alert(`Account created successfully! ✅\n\nA verification email has been sent to ${email}.\nPlease check your inbox/spam folder and verify your email.`);
+
+                // Redirect happens automatically via onAuthStateChanged
+            } catch (error) {
+                errorEl.textContent = error.message;
+                errorEl.classList.remove('hidden');
+            }
+        });
+
+        // Google Sign-In Handler
+        async function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+                // Redirect handled by onAuthStateChanged
+            } catch (error) {
+                console.error("Google Sign-In Error:", error);
+                alert("Google Sign-In Failed: " + error.message);
+            }
+        }
+
+        // Reset Password Handler
+        document.getElementById('reset-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reset-email').value;
+            const messageEl = document.getElementById('reset-message');
+
+            try {
+                messageEl.className = 'hidden text-sm p-3 rounded-lg';
+                await auth.sendPasswordResetEmail(email);
+
+                messageEl.textContent = `✅ Password reset email sent to ${email}. Check your Inbox or Spam folder.`;
+                messageEl.classList.remove('hidden', 'text-red-400', 'bg-red-500/10');
+                messageEl.classList.add('text-green-400', 'bg-green-500/10');
+
+            } catch (error) {
+                messageEl.textContent = `❌ ${error.message}`;
+                messageEl.classList.remove('hidden', 'text-green-400', 'bg-green-500/10');
+                messageEl.classList.add('text-red-400', 'bg-red-500/10');
+            }
+        });
+    </script>
+</body>
+
+</html>
